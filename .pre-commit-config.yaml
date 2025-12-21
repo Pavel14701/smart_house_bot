@@ -3,9 +3,64 @@ repos:
     rev: v0.4.9
     hooks:
       - id: ruff
-        args: [--fix]
+        name: ruff (stt)
+        files: ^stt/
+        args: ["--fix", "--config=stt/pyproject.toml"]
+
+      - id: ruff
+        name: ruff (nlu)
+        files: ^nlu/
+        args: ["--fix", "--config=nlu/pyproject.toml"]
+
+      - id: ruff
+        name: ruff (command)
+        files: ^command/
+        args: ["--fix", "--config=command/pyproject.toml"]
+
+      - id: ruff
+        name: ruff (bot)
+        files: ^bot/
+        args: ["--fix", "--config=bot/pyproject.toml"]
+
+      - id: ruff
+        name: ruff (device_gateway)
+        files: ^device_gateway/
+        args: ["--fix", "--config=device_gateway/pyproject.toml"]
+
+      - id: ruff
+        name: ruff (webapp)
+        files: ^webapp/
+        args: ["--fix", "--config=webapp/pyproject.toml"]
 
   - repo: https://github.com/pre-commit/mirrors-mypy
     rev: v1.11.2
     hooks:
       - id: mypy
+        name: mypy (stt)
+        files: ^stt/
+        args: ["--config-file=stt/pyproject.toml"]
+
+      - id: mypy
+        name: mypy (nlu)
+        files: ^nlu/
+        args: ["--config-file=nlu/pyproject.toml"]
+
+      - id: mypy
+        name: mypy (command)
+        files: ^command/
+        args: ["--config-file=command/pyproject.toml"]
+
+      - id: mypy
+        name: mypy (bot)
+        files: ^bot/
+        args: ["--config-file=bot/pyproject.toml"]
+
+      - id: mypy
+        name: mypy (device_gateway)
+        files: ^device_gateway/
+        args: ["--config-file=device_gateway/pyproject.toml"]
+
+      - id: mypy
+        name: mypy (webapp)
+        files: ^webapp/
+        args: ["--config-file=webapp/pyproject.toml"]
