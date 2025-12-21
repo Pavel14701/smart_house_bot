@@ -39,6 +39,8 @@ repos:
         name: mypy (stt)
         files: ^stt/
         args: ["--config-file=stt/pyproject.toml"]
+        additional_dependencies: 
+          - types-redis>=4.6.0.20241004
 
       - id: mypy
         name: mypy (nlu)

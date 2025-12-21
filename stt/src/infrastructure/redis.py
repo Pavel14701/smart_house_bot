@@ -4,7 +4,7 @@ from config import RedisConfig
 from redis.asyncio import Redis
 
 
-async def new_redis_client(redis_config: RedisConfig) -> Redis[Any]:
+def new_redis_client(redis_config: RedisConfig) -> Redis[Any]:
     return Redis(
         host=redis_config.host,
         port=redis_config.port,
