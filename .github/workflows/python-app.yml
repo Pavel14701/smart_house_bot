@@ -35,11 +35,14 @@ jobs:
       - name: Install uv
         run: pip install uv
 
+      - name: Create uv venv
+        run: uv venv
+
       - name: Install dev dependencies
         run: uv pip install .[dev]
 
       - name: Run Ruff
-        run: uv run ruff check . --fix
+        run: uv run ruff check .
 
   typecheck:
     runs-on: ubuntu-latest
@@ -61,6 +64,9 @@ jobs:
 
       - name: Install uv
         run: pip install uv
+
+      - name: Create uv venv
+        run: uv venv
 
       - name: Install dev dependencies
         run: uv pip install .[dev]
@@ -91,6 +97,9 @@ jobs:
 
       - name: Install uv
         run: pip install uv
+
+      - name: Create uv venv
+        run: uv venv
 
       - name: Install service dependencies
         run: uv pip install ./${{ matrix.service }}[dev]
