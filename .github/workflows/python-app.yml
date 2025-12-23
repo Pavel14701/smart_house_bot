@@ -38,8 +38,14 @@ jobs:
       - name: Create uv venv
         run: uv venv
 
-      - name: Install dev dependencies
-        run: uv pip install .[dev]
+      - name: Install service dependencies
+        run: |
+          uv pip install ./stt[dev]
+          uv pip install ./nlu[dev]
+          uv pip install ./command[dev]
+          uv pip install ./bot[dev]
+          uv pip install ./device_gateway[dev]
+          uv pip install ./webapp[dev]
 
       - name: Run Ruff
         run: uv run ruff check .
@@ -68,8 +74,14 @@ jobs:
       - name: Create uv venv
         run: uv venv
 
-      - name: Install dev dependencies
-        run: uv pip install .[dev]
+      - name: Install service dependencies
+        run: |
+          uv pip install ./stt[dev]
+          uv pip install ./nlu[dev]
+          uv pip install ./command[dev]
+          uv pip install ./bot[dev]
+          uv pip install ./device_gateway[dev]
+          uv pip install ./webapp[dev]
 
       - name: Run Mypy
         run: uv run mypy .
