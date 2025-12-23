@@ -2,13 +2,9 @@ name: CI
 
 on:
   push:
-    branches:
-      - master
-      - dev
+    branches: [master, dev]
   pull_request:
-    branches:
-      - master
-      - dev
+    branches: [master, dev]
 
 permissions:
   contents: read
@@ -18,27 +14,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
       - name: Set up Python 3.14
         uses: actions/setup-python@v5
         with:
           python-version: "3.14"
-
-      - name: Cache uv
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/uv
-          key: ${{ runner.os }}-uv-${{ hashFiles('**/pyproject.toml') }}
-          restore-keys: |
-            ${{ runner.os }}-uv-
-
       - name: Install uv
         run: pip install uv
-
       - name: Create uv venv
         run: uv venv
-
-      - name: Install service dependencies
+      - name: Install all service deps
         run: |
           uv pip install ./stt[dev]
           uv pip install ./nlu[dev]
@@ -46,45 +30,28 @@ jobs:
           uv pip install ./bot[dev]
           uv pip install ./device_gateway[dev]
           uv pip install ./webapp[dev]
-
       - name: Run Ruff
         run: uv run ruff check .
 
   typecheck:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        service: [stt, nlu, command, bot, device_gateway, webapp]
     steps:
       - uses: actions/checkout@v4
-
       - name: Set up Python 3.14
         uses: actions/setup-python@v5
         with:
           python-version: "3.14"
-
-      - name: Cache uv
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/uv
-          key: ${{ runner.os }}-uv-${{ hashFiles('**/pyproject.toml') }}
-          restore-keys: |
-            ${{ runner.os }}-uv-
-
       - name: Install uv
         run: pip install uv
-
       - name: Create uv venv
         run: uv venv
-
-      - name: Install service dependencies
-        run: |
-          uv pip install ./stt[dev]
-          uv pip install ./nlu[dev]
-          uv pip install ./command[dev]
-          uv pip install ./bot[dev]
-          uv pip install ./device_gateway[dev]
-          uv pip install ./webapp[dev]
-
+      - name: Install service deps
+        run: uv pip install ./${{ matrix.service }}[dev]
       - name: Run Mypy
-        run: uv run mypy .
+        run: uv run mypy ./${{ matrix.service }}
 
   tests:
     runs-on: ubuntu-latest
@@ -93,29 +60,16 @@ jobs:
         service: [stt, nlu, command, bot, device_gateway, webapp]
     steps:
       - uses: actions/checkout@v4
-
       - name: Set up Python 3.14
         uses: actions/setup-python@v5
         with:
           python-version: "3.14"
-
-      - name: Cache uv
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/uv
-          key: ${{ runner.os }}-uv-${{ hashFiles('**/pyproject.toml') }}
-          restore-keys: |
-            ${{ runner.os }}-uv-
-
       - name: Install uv
         run: pip install uv
-
       - name: Create uv venv
         run: uv venv
-
-      - name: Install service dependencies
+      - name: Install service deps
         run: uv pip install ./${{ matrix.service }}[dev]
-
       - name: Run pytest
         run: |
           if [ -d "${{ matrix.service }}/tests" ]; then
