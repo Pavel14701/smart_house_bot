@@ -6,41 +6,10 @@ on:
   pull_request:
     branches: [master, dev]
 
+permissions:
+  contents: read
+
 jobs:
-  lint:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Set up Python 3.14
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.14"
-      - name: Install uv
-        run: pip install uv
-
-      # синхронизируем все сервисы по очереди
-      - name: Sync stt
-        working-directory: ./stt
-        run: uv sync --group dev
-      - name: Sync nlu
-        working-directory: ./nlu
-        run: uv sync --group dev
-      - name: Sync command
-        working-directory: ./command
-        run: uv sync --group dev
-      - name: Sync bot
-        working-directory: ./bot
-        run: uv sync --group dev
-      - name: Sync device_gateway
-        working-directory: ./device_gateway
-        run: uv sync --group dev
-      - name: Sync webapp
-        working-directory: ./webapp
-        run: uv sync --group dev
-
-      - name: Run Ruff
-        run: uv run ruff check .
-
   typecheck:
     runs-on: ubuntu-latest
     strategy:
@@ -60,6 +29,9 @@ jobs:
       - name: Run Mypy
         working-directory: ./${{ matrix.service }}
         run: uv run mypy .
+      - name: Run Ruff
+        working-directory: ./${{ matrix.service }}
+        run: uv run ruff check .
 
   tests:
     runs-on: ubuntu-latest
