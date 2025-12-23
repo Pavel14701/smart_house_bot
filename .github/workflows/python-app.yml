@@ -23,18 +23,15 @@ jobs:
       - name: Install uv
         run: pip install uv
 
-      - name: Create uv venv
-        run: uv venv
-
-      # ставим все сервисы с dev-группой, чтобы линтер видел зависимости
-      - name: Install service dependencies
+      # синхронизируем все сервисы с dev-группой
+      - name: Sync dependencies
         run: |
-          uv pip install --group dev ./stt
-          uv pip install --group dev ./nlu
-          uv pip install --group dev ./command
-          uv pip install --group dev ./bot
-          uv pip install --group dev ./device_gateway
-          uv pip install --group dev ./webapp
+          uv sync --group dev ./stt
+          uv sync --group dev ./nlu
+          uv sync --group dev ./command
+          uv sync --group dev ./bot
+          uv sync --group dev ./device_gateway
+          uv sync --group dev ./webapp
 
       - name: Run Ruff
         run: uv run ruff check .
@@ -55,11 +52,8 @@ jobs:
       - name: Install uv
         run: pip install uv
 
-      - name: Create uv venv
-        run: uv venv
-
-      - name: Install service dependencies
-        run: uv pip install --group dev ./${{ matrix.service }}
+      - name: Sync dependencies
+        run: uv sync --group dev ./${{ matrix.service }}
 
       - name: Run Mypy
         working-directory: ./${{ matrix.service }}
@@ -81,11 +75,8 @@ jobs:
       - name: Install uv
         run: pip install uv
 
-      - name: Create uv venv
-        run: uv venv
-
-      - name: Install service dependencies
-        run: uv pip install --group dev ./${{ matrix.service }}
+      - name: Sync dependencies
+        run: uv sync --group dev ./${{ matrix.service }}
 
       - name: Run pytest
         run: |
