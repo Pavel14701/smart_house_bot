@@ -14,22 +14,28 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - name: Set up Python 3.14
         uses: actions/setup-python@v5
         with:
           python-version: "3.14"
+
       - name: Install uv
         run: pip install uv
+
       - name: Create uv venv
         run: uv venv
-      - name: Install all service deps
+
+      # ставим все сервисы с dev-группой, чтобы линтер видел зависимости
+      - name: Install service dependencies
         run: |
-          uv pip install ./stt[dev]
-          uv pip install ./nlu[dev]
-          uv pip install ./command[dev]
-          uv pip install ./bot[dev]
-          uv pip install ./device_gateway[dev]
-          uv pip install ./webapp[dev]
+          uv pip install --group dev ./stt
+          uv pip install --group dev ./nlu
+          uv pip install --group dev ./command
+          uv pip install --group dev ./bot
+          uv pip install --group dev ./device_gateway
+          uv pip install --group dev ./webapp
+
       - name: Run Ruff
         run: uv run ruff check .
 
@@ -40,18 +46,24 @@ jobs:
         service: [stt, nlu, command, bot, device_gateway, webapp]
     steps:
       - uses: actions/checkout@v4
+
       - name: Set up Python 3.14
         uses: actions/setup-python@v5
         with:
           python-version: "3.14"
+
       - name: Install uv
         run: pip install uv
+
       - name: Create uv venv
         run: uv venv
-      - name: Install service deps
-        run: uv pip install ./${{ matrix.service }}[dev]
+
+      - name: Install service dependencies
+        run: uv pip install --group dev ./${{ matrix.service }}
+
       - name: Run Mypy
-        run: uv run mypy ./${{ matrix.service }}
+        working-directory: ./${{ matrix.service }}
+        run: uv run mypy .
 
   tests:
     runs-on: ubuntu-latest
@@ -60,16 +72,21 @@ jobs:
         service: [stt, nlu, command, bot, device_gateway, webapp]
     steps:
       - uses: actions/checkout@v4
+
       - name: Set up Python 3.14
         uses: actions/setup-python@v5
         with:
           python-version: "3.14"
+
       - name: Install uv
         run: pip install uv
+
       - name: Create uv venv
         run: uv venv
-      - name: Install service deps
-        run: uv pip install ./${{ matrix.service }}[dev]
+
+      - name: Install service dependencies
+        run: uv pip install --group dev ./${{ matrix.service }}
+
       - name: Run pytest
         run: |
           if [ -d "${{ matrix.service }}/tests" ]; then
