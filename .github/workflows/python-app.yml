@@ -29,12 +29,12 @@ jobs:
       # ставим все сервисы с dev-группой, чтобы линтер видел зависимости
       - name: Install service dependencies
         run: |
-          uv pip install --group dev ./stt
-          uv pip install --group dev ./nlu
-          uv pip install --group dev ./command
-          uv pip install --group dev ./bot
-          uv pip install --group dev ./device_gateway
-          uv pip install --group dev ./webapp
+          uv pip install --group dev ./smart_house_bot/stt
+          uv pip install --group dev ./smart_house_bot/nlu
+          uv pip install --group dev ./smart_house_bot/command
+          uv pip install --group dev ./smart_house_bot/bot
+          uv pip install --group dev ./smart_house_bot/device_gateway
+          uv pip install --group dev ./smart_house_bot/webapp
 
       - name: Run Ruff
         run: uv run ruff check .
@@ -59,10 +59,10 @@ jobs:
         run: uv venv
 
       - name: Install service dependencies
-        run: uv pip install --group dev ./${{ matrix.service }}
+        run: uv pip install --group dev ./smart_house_bot/${{ matrix.service }}
 
       - name: Run Mypy
-        working-directory: ./${{ matrix.service }}
+        working-directory: ./smart_house_bot/${{ matrix.service }}
         run: uv run mypy .
 
   tests:
@@ -85,12 +85,12 @@ jobs:
         run: uv venv
 
       - name: Install service dependencies
-        run: uv pip install --group dev ./${{ matrix.service }}
+        run: uv pip install --group dev ./smart_house_bot/${{ matrix.service }}
 
       - name: Run pytest
         run: |
-          if [ -d "${{ matrix.service }}/tests" ]; then
-            uv run pytest ${{ matrix.service }}/tests
+          if [ -d "smart_house_bot/${{ matrix.service }}/tests" ]; then
+            uv run pytest smart_house_bot/${{ matrix.service }}/tests
           else
             echo "No tests for ${{ matrix.service }}, skipping..."
           fi
