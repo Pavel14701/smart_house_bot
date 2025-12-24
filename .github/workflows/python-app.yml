@@ -1,0 +1,59 @@
+name: CI
+
+on:
+  push:
+    branches: [master, dev]
+  pull_request:
+    branches: [master, dev]
+
+permissions:
+  contents: read
+
+jobs:
+  typecheck-and-lint:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        service: [stt, nlu, command, bot, device_gateway, webapp]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python 3.14
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+      - name: Install uv
+        run: pip install uv
+      - name: Sync dependencies
+        working-directory: ./${{ matrix.service }}
+        run: uv sync --group dev
+      - name: Run Mypy
+        working-directory: ./${{ matrix.service }}
+        run: uv run mypy .
+      - name: Run Ruff
+        working-directory: ./${{ matrix.service }}
+        run: uv run ruff check .
+
+  tests:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        service: [stt, nlu, command, bot, device_gateway, webapp]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python 3.14
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+      - name: Install uv
+        run: pip install uv
+      - name: Sync dependencies
+        working-directory: ./${{ matrix.service }}
+        run: uv sync --group dev
+      - name: Run pytest
+        working-directory: ./${{ matrix.service }}
+        run: |
+          if [ -d "tests" ]; then
+            uv run pytest tests
+          else
+            echo "No tests for ${{ matrix.service }}, skipping..."
+          fi
