@@ -56,6 +56,8 @@ repos:
         name: mypy (bot)
         files: ^bot/
         args: ["--config-file=bot/pyproject.toml"]
+        additional_dependencies: 
+          - types-redis>=4.6.0.20241004
 
       - id: mypy
         name: mypy (device_gateway)
