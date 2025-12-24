@@ -1,3 +1,4 @@
+import asyncio
 import tempfile
 from typing import Any, cast
 
@@ -13,5 +14,7 @@ class WhisperAdapter(ISpeechToTextAdapter):
         with tempfile.NamedTemporaryFile(suffix=".wav") as tmp:
             tmp.write(audio_bytes)
             tmp.flush()
-            result: dict[str, Any] = self._model.transcribe(tmp.name) 
+            result: dict[str, Any] = await asyncio.to_thread(
+                self._model.transcribe, tmp.name
+            )
             return cast(str, result["text"])

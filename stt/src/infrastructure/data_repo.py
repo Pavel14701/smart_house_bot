@@ -9,14 +9,14 @@ from redis.asyncio import Redis
 
 
 class DataRepository(IDataRepository):
-    def __init__(
-        self, 
-        client: Redis, 
-    ) -> None:
+    def __init__(self, client: Redis) -> None:
         self._client = client
 
     async def get_message(self, audio_id: str) -> TextEvent | AudioFile:
-        raw: bytes | None = cast(bytes | None, await self._client.get(audio_id))
+        raw: bytes | None = cast(
+            bytes | None,
+            await self._client.get(f"audio:{audio_id}")
+        )
         if raw is None:
             raise AudioNotFoundError(audio_id)
         payload: dict[str, Any] = json.loads(raw.decode("utf-8"))
@@ -36,5 +36,8 @@ class DataRepository(IDataRepository):
         await self._client.delete(f"audio:{audio_id}")
 
     async def save_text(self, text_event: TextEvent) -> str:
-        await self._client.set(f"text:{text_event.id}", text_event.text)
+        await self._client.set(
+            f"text:{text_event.id}",
+            json.dumps({"text": text_event.text})
+        )
         return text_event.id
