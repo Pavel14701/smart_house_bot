@@ -18,17 +18,10 @@ class RedisConfig(BaseModel):
     password: str = Field(alias="REDIS_PASSWORD")
 
 
-class SecretConfig(BaseModel):
-    config_secret_key: str = Field(alias="APP_CONFIG_ENCRYPTION_KEY")
-
-
 class Config(BaseModel):
     rabbit: RabbitMQConfig = Field(
         default_factory=lambda: RabbitMQConfig.model_validate(os.environ)
     )
     redis: RedisConfig = Field(
         default_factory=lambda: RedisConfig.model_validate(os.environ)
-    )
-    secret: SecretConfig = Field(
-        default_factory=lambda: SecretConfig.model_validate(os.environ)
     )

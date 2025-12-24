@@ -1,23 +1,32 @@
 from dishka import make_async_container
 from dishka.integrations.faststream import setup_dishka  # type: ignore
 from faststream import FastStream
-from faststream.rabbit import RabbitBroker
+from faststream.rabbit import RabbitBroker, RabbitRouter
+import whisper
 
 from .config import Config
-from .controllers.amqp import controller
-from .infrastructure.rabbit import new_broker
+from .infrastructure.adapters.rabbit import new_broker
 from .ioc import AppProvider
 
+
 config = Config()
+model = whisper.load_model("base")
+controller = RabbitRouter()
 
 
-def get_faststream_app(config: Config) -> FastStream:
+def get_faststream_app(
+    config: Config, 
+    model: whisper.Whisper,
+    controller: RabbitRouter
+) -> FastStream:
     broker = new_broker(config.rabbit)
     container = make_async_container(
         AppProvider(),
         context={
             Config: config, 
-            RabbitBroker: broker
+            RabbitBroker: broker,
+            whisper.Whisper: model,
+            RabbitRouter: controller
         }
     )
     faststream_app = FastStream(broker)
@@ -32,5 +41,5 @@ def get_faststream_app(config: Config) -> FastStream:
 
 if __name__ == "__main__":
     import asyncio
-    app = get_faststream_app(config)
+    app = get_faststream_app(config, model, controller)
     asyncio.run(app.run())
