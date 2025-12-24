@@ -36,12 +36,12 @@ class AudioController:
                     reason=str(e)
                 )
             )
-        except Exception as e:
+        except Exception:
             await self.publish_error(
                 ErrorEventDTO(
                     user_id=dto.user_id, 
                     message_id=dto.message_id, 
-                    reason=f"Internal error: {e}"
+                    reason="Internal error"
                 )
             )
 
