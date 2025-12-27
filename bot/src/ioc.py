@@ -1,15 +1,22 @@
 from typing import Any, AsyncIterable
 from uuid import UUID, uuid7  # type: ignore[attr-defined]
 
-from aiogram import Router
+from aiogram import Bot, Router
 from aiogram.types import Chat, Message, User
 from application import interfaces
 from config import Config
+from controllers.middleware import DomainErrorMiddleware
 from dishka import AnyOf, Provider, Scope, from_context, provide
 from dishka.integrations.aiogram import AiogramMiddlewareData
-from faststream.rabbit import RabbitBroker
+from faststream.rabbit import RabbitBroker, RabbitRouter
 from infrastructure.adapters.postgres import new_session_maker
 from infrastructure.adapters.redis import new_redis_client
+from infrastructure.adapters.uow import UnitOfWork
+from infrastructure.repositories.home import HomeRepositorySQL
+from infrastructure.repositories.home_user_role import HomeUserRoleRepositorySQL
+from infrastructure.repositories.message_cache import MessageCacheRepository
+from infrastructure.repositories.smart_device import SmartDeviceRepositorySQL
+from infrastructure.repositories.user import TelegramUserRepositorySQL
 from redis.asyncio import Redis
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
@@ -17,7 +24,9 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 class BotProvider(Provider):
     config = from_context(provides=Config, scope=Scope.APP)
     broker = from_context(provides=RabbitBroker, scope=Scope.APP)
-    router = from_context(provides=Router, scope=Scope.APP)
+    bot_router = from_context(provides=Router, scope=Scope.APP)
+    bot = from_context(provides=Bot, scope=Scope.APP)
+    amqp_router = from_context(provides=RabbitRouter, scope=Scope.APP)
 
     @provide(scope=Scope.REQUEST)
     async def get_chat(
@@ -52,3 +61,44 @@ class BotProvider(Provider):
     @provide(interfaces.UUIDGenerator, scope=Scope.APP)
     def get_uuid(self) -> UUID:
         return uuid7()
+
+    message_cache_repo = provide(
+        source=MessageCacheRepository,
+        scope=Scope.APP,
+        provides=interfaces.MessageCacheProtocol
+    )
+
+    user_repo = provide(
+        source=TelegramUserRepositorySQL,
+        scope=Scope.APP,
+        provides=interfaces.TelegramUserRepositoryProtocol
+    )
+
+    home_user_role_repo = provide(
+        source=HomeUserRoleRepositorySQL,
+        scope=Scope.APP,
+        provides=interfaces.HomeUserRoleRepositoryProtocol
+    )
+
+    home_repo = provide(
+        source=HomeRepositorySQL,
+        scope=Scope.APP,
+        provides=interfaces.HomeRepositoryProtocol
+    )
+
+    smart_device_repo = provide(
+        source=SmartDeviceRepositorySQL,
+        scope=Scope.APP,
+        provides=interfaces.SmartDeviceRepositoryProtocol
+    )
+
+    uow_adapter = provide(
+        source=UnitOfWork,
+        scope=Scope.APP,
+        provides=interfaces.UnitOfWorkProtocol
+    )
+
+    error_midleware = provide(
+        source=DomainErrorMiddleware,
+        scope=Scope.APP
+    )

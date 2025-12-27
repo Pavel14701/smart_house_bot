@@ -1,60 +1,81 @@
-from dataclasses import asdict
+from domain.entities import AudioFileEntity, TelegramUserEntity, TextEventEntity
 
-from aiogram import Bot
-from aiogram.types import Voice
-from faststream.rabbit import RabbitBroker
-
-from application.dto import CommandDTO
+from application.dto import CommandDTO, CommandInputDTO, UserDTO
+from application.interfaces import (
+    MessageCacheProtocol,
+    UnitOfWorkProtocol,
+    UUIDGenerator,
+)
 
 
 class FirstTouchInteractor:
-    def __init__(self) -> None:
-        pass
+    def __init__(
+        self,
+        id_gen: UUIDGenerator,
+        uow: UnitOfWorkProtocol
+    ) -> None:
+        self._id_gen = id_gen
+        self._uow = uow
 
-    async def __call__(self, user_id: str | int, chat_id: str | int | None) -> None:
-        pass 
-
-
-class TextCommandInteractor:
-    def __init__(self, broker):
-        self._broker = broker
-
-    async def __call__(
-        self, 
-        user_id: str | int, 
-        message_id: str | int | None,
-        chat_id: str | int | None, 
-        ) -> None:
-        dto = CommandDTO(
-            user_id=str(user_id), 
-            message_id=str(message_id) if message_id else None)
-        await self._broker.publish(asdict(dto), queue="stt_command")
+    async def __call__(self, dto: UserDTO) -> None:
+        dm = TelegramUserEntity(
+            id=self._id_gen(),
+            telegram_id=dto.telegram_id,
+            username=dto.username,
+            first_name=dto.first_name,
+            last_name=dto.last_name
+        )
+        await self._uow.users.add(dm)
 
 
 class VoiceCommandInteractor:
     def __init__(
         self, 
-        broker: RabbitBroker, 
-        bot: Bot
+        id_gen: UUIDGenerator, 
+        msg_cache: MessageCacheProtocol
     ) -> None:
-        self._broker = broker
-        self._bot = bot
+        self._id_gen = id_gen
+        self._msg_cache = msg_cache
+
+    async def __call__(self, dto: CommandInputDTO) -> CommandDTO:
+        id = self._id_gen()
+        if dto.voice:
+            content = dto.voice.read()
+            audio_file = AudioFileEntity(
+                id=str(id),
+                content=content,
+                mimetype=dto.mime_type or "application/octet-stream",
+            )
+            await self._msg_cache.save_message(audio_file)
+        else:
+            raise ValueError("No voice in message")
+        return CommandDTO(
+            id=id,
+            user_id=dto.user_id,
+            chat_id=dto.chat_id,
+            message_id=dto.message_id,
+        )
+
+
+class TextCommandInteractor:
+    def __init__(self, id_gen: UUIDGenerator, msg_cache: MessageCacheProtocol) -> None:
+        self._id_gen = id_gen
+        self._msg_cache = msg_cache
 
     async def __call__(
-        self, 
-        user_id: str | int, 
-        message_id: str | int | None,
-        chat_id: str | int | None,
-        voice: Voice
-    ) -> None:
-        audio_bytes_io = await self._bot.download(voice)
-        if audio_bytes_io is None:
-            raise RuntimeError("Не удалось скачать голосовое сообщение")
-        audio_bytes = audio_bytes_io.read()
-        dto = CommandDTO(
-            user_id=str(user_id), 
-            message_id=str(message_id) if message_id else None)
-        await self._broker.publish(
-            {"id": dto.message_id, "user_id": dto.user_id, "content": audio_bytes},
-            queue="stt_command",
+        self,
+        dto: CommandInputDTO
+    ) -> CommandDTO:
+        id = self._id_gen()
+        if dto.text:
+            text_event = TextEventEntity(id=str(id), text=dto.text)
+            await self._msg_cache.save_message(text_event)
+        else:
+            raise ValueError("No text in message")
+        return CommandDTO(
+            id=id,
+            user_id=dto.user_id,
+            chat_id=dto.chat_id,
+            message_id=dto.message_id,
         )
+

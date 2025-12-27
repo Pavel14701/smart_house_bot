@@ -23,7 +23,6 @@ class PydubAudioConverter(IAudioConvertator):
             return AudioFile(
                 id=audio.id,
                 content=output_buffer.getvalue(),
-                filename=f"{audio.id}.wav",
                 mimetype="audio/wav",
             )
         except Exception as e:

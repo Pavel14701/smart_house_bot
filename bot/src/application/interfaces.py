@@ -2,11 +2,28 @@ import types
 from typing import Any, Optional, Protocol, Self, Type  # type: ignore [attr-defined]
 from uuid import UUID
 
-from domain.entities import TelegramUserDM
+from domain.entities import (
+    AudioFileEntity,
+    HomeEntity,
+    HomeUserRoleEntity,
+    SmartDeviceEntity,
+    TelegramUserEntity,
+    TextEventEntity,
+)
 
 
 class UUIDGenerator(Protocol):
     def __call__(self) -> UUID:
+        ...
+
+
+class MessageCacheProtocol(Protocol):
+    async def save_message(
+        self,
+        message: TextEventEntity | AudioFileEntity,
+        *,
+        ttl: int | None = None,
+    ) -> None:
         ...
 
 
@@ -31,11 +48,7 @@ class TelegramUserRepositoryProtocol(Protocol):
 
     async def add(
         self,
-        user_id: UUID,
-        telegram_id: int,
-        username: str | None = None,
-        first_name: str | None = None,
-        last_name: str | None = None,
+        dm: TelegramUserEntity
     ) -> UUID:
         ...
 
@@ -46,7 +59,7 @@ class TelegramUserRepositoryProtocol(Protocol):
         telegram_id: int | None = None,
         username: str | None = None,
         lock: Any | None = None,
-    ) -> TelegramUserDM | None:
+    ) -> TelegramUserEntity | None:
         ...
 
     async def update(
@@ -62,8 +75,32 @@ class TelegramUserRepositoryProtocol(Protocol):
         ...
 
 
+class HomeRepositoryProtocol(Protocol):
+    async def create(self, home: HomeEntity) -> None: ...
+    async def read(self, home_id: UUID) -> HomeEntity | None: ...
+    async def update(self, home: HomeEntity) -> None: ...
+    async def delete(self, home_id: UUID) -> None: ...
+
+
+class HomeUserRoleRepositoryProtocol(Protocol):
+    async def create(self, role: HomeUserRoleEntity) -> None: ...
+    async def read(self, role_id: UUID) -> HomeUserRoleEntity | None: ...
+    async def update(self, role: HomeUserRoleEntity) -> None: ...
+    async def delete(self, role_id: UUID) -> None: ...
+
+
+class SmartDeviceRepositoryProtocol(Protocol):
+    async def create(self, device: SmartDeviceEntity) -> None: ...
+    async def read(self, device_id: UUID) -> SmartDeviceEntity | None: ...
+    async def update(self, device: SmartDeviceEntity) -> None: ...
+    async def delete(self, device_id: UUID) -> None: ...
+
+
 class UnitOfWorkProtocol(Protocol):
     users: TelegramUserRepositoryProtocol
+    home: HomeRepositoryProtocol
+    roles: HomeUserRoleRepositoryProtocol
+    devices: SmartDeviceRepositoryProtocol
 
     async def __aenter__(self) -> Self:
         ...
@@ -75,3 +112,5 @@ class UnitOfWorkProtocol(Protocol):
         tb: Optional[types.TracebackType],
     ) -> None: 
         ...
+
+

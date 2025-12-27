@@ -5,7 +5,6 @@ from dataclasses import dataclass
 class AudioFile:
     id: str
     content: bytes
-    filename: str
     mimetype: str = "audio/wav"
 
 
