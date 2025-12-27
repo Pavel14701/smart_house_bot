@@ -28,7 +28,6 @@ class DataRepository(IDataRepository):
         return AudioFile(
             id=audio_id,
             content=base64.b64decode(payload["content"]),
-            filename=payload["filename"],
             mimetype=payload.get("mimetype", "audio/wav"),
         )
 

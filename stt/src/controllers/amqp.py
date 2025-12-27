@@ -3,7 +3,7 @@ from dataclasses import asdict
 from application.dto import CommandDTO, ErrorEventDTO, SuccessEventDTO
 from application.errors import AudioNotFoundError
 from application.interactors import ProcessAudioEventInteractor
-from dishka.integrations.faststream import FromDishka, inject
+from dishka.integrations.faststream import FromDishka
 from faststream.rabbit import RabbitBroker, RabbitRouter
 
 
@@ -13,7 +13,6 @@ class AudioController:
         self.broker = broker
         router.subscriber("stt_command")(self.process_audio)
 
-    @inject
     async def process_audio(
         self,
         dto: CommandDTO,

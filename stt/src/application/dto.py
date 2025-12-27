@@ -5,6 +5,7 @@ from dataclasses import dataclass
 class CommandDTO:
     user_id: str
     message_id: str
+    chat_id: str | None = None
 
 
 @dataclass(frozen=True, slots=True)
