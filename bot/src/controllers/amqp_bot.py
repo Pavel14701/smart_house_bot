@@ -1,5 +1,5 @@
 from aiogram import Bot, Router
-from aiogram.filters import Command
+from aiogram.filters import Command, StateFilter
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Chat, Message, User
 from application.dto import CommandInputDTO, UserDTO
@@ -27,7 +27,7 @@ class BotControllers:
         self._bot_router = bot_router
         self._amqp_router = amqp_router
         self._bot_router.message(Command("start"))(self.start_handler)
-        self._bot_router.message(CommandState.waiting_for_command)(self.command_handler)
+        self._bot_router.message(StateFilter(CommandState.waiting_for_command))(self.command_handler)
         self._bot_router.message.middleware(midleware)
         self._amqp_router.publisher("stt_command")(self.command_handler)
 
