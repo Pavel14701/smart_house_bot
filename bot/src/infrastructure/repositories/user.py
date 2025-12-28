@@ -5,10 +5,10 @@ from application.interfaces import TelegramUserRepositoryProtocol
 from domain.entities import TelegramUserEntity
 from domain.errors import (
     DomainError,
-    UserAlreadyExistsError,
-    UserDeleteError,
-    UserNotFoundError,
-    UserUpdateError,
+    EntityAlreadyExistsError,
+    EntityDeleteError,
+    EntityNotFoundError,
+    EntityUpdateError,
 )
 from sqlalchemy import text
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
@@ -54,7 +54,7 @@ class TelegramUserRepositorySQL(TelegramUserRepositoryProtocol):
             )
             return dm.id
         except IntegrityError as e:
-            raise UserAlreadyExistsError(
+            raise EntityAlreadyExistsError(
                 "A user with this telegram_id already exists."
             ) from e
         except SQLAlchemyError as e:
@@ -134,11 +134,11 @@ class TelegramUserRepositorySQL(TelegramUserRepositoryProtocol):
                 },
             )
             if getattr(result, "rowcount", 0) == 0:
-                raise UserNotFoundError("User not found for update")
-        except UserNotFoundError:
+                raise EntityNotFoundError("User not found for update")
+        except EntityNotFoundError:
             raise
         except SQLAlchemyError as e:
-            raise UserUpdateError("Error updating user") from e
+            raise EntityUpdateError("Error updating user") from e
 
     async def delete(self, telegram_id: int) -> None:
         stmt = text(
@@ -150,8 +150,8 @@ class TelegramUserRepositorySQL(TelegramUserRepositoryProtocol):
         try:
             result = await self.session.execute(stmt, {"telegram_id": telegram_id})
             if getattr(result, "rowcount", 0) == 0:
-                raise UserNotFoundError("User to delete not found")
-        except UserNotFoundError:
+                raise EntityNotFoundError("User to delete not found")
+        except EntityNotFoundError:
             raise
         except SQLAlchemyError as e:
-            raise UserDeleteError("Error deleting user") from e
+            raise EntityDeleteError("Error deleting user") from e

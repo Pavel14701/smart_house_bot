@@ -3,17 +3,17 @@ class DomainError(Exception):
     """Базовое доменное исключение."""
 
 
-class UserAlreadyExistsError(DomainError):
+class EntityAlreadyExistsError(DomainError):
     """Пользователь с таким telegram_id уже существует."""
 
 
-class UserNotFoundError(DomainError):
+class EntityNotFoundError(DomainError):
     """Пользователь не найден."""
 
 
-class UserUpdateError(DomainError):
+class EntityUpdateError(DomainError):
     """Ошибка при обновлении данных пользователя."""
 
 
-class UserDeleteError(DomainError):
+class EntityDeleteError(DomainError):
     """Ошибка при удалении пользователя."""

@@ -5,6 +5,7 @@ from uuid import UUID
 from domain.entities import (
     AudioFileEntity,
     HomeEntity,
+    HomeRole,
     HomeUserRoleEntity,
     SmartDeviceEntity,
     TelegramUserEntity,
@@ -79,16 +80,21 @@ class HomeRepositoryProtocol(Protocol):
     def __init__(self, session: SessionProtocol) -> None:
         ...
 
-    async def create(self, home: HomeEntity) -> None: 
+    async def create(self, dm: HomeEntity) -> UUID: 
         ...
 
-    async def read(self, home_id: UUID) -> HomeEntity | None: 
+    async def read(self, *, id: UUID, lock: Any) -> HomeEntity | None: 
         ...
     
-    async def update(self, home: HomeEntity) -> None: 
+    async def update(
+        self, 
+        id: UUID, 
+        name: str | None, 
+        address: str | None
+    ) -> None: 
         ...
     
-    async def delete(self, home_id: UUID) -> None: 
+    async def delete(self, id: UUID) -> None: 
         ...
 
 
@@ -96,16 +102,16 @@ class HomeUserRoleRepositoryProtocol(Protocol):
     def __init__(self, session: SessionProtocol) -> None:
         ...
 
-    async def create(self, role: HomeUserRoleEntity) -> None: 
+    async def create(self, dm: HomeUserRoleEntity) -> UUID: 
         ...
     
-    async def read(self, role_id: UUID) -> HomeUserRoleEntity | None: 
+    async def read(self, *, id: UUID, lock: Any) -> HomeUserRoleEntity | None: 
         ...
     
-    async def update(self, role: HomeUserRoleEntity) -> None: 
+    async def update(self, id: UUID, new_role: HomeRole) -> None: 
         ...
     
-    async def delete(self, role_id: UUID) -> None: 
+    async def delete(self, id: UUID) -> None: 
         ...
 
 
@@ -113,16 +119,25 @@ class SmartDeviceRepositoryProtocol(Protocol):
     def __init__(self, session: SessionProtocol) -> None:
         ...
 
-    async def create(self, device: SmartDeviceEntity) -> None: 
+    async def create(self, dm: SmartDeviceEntity) -> UUID: 
         ...
     
-    async def read(self, device_id: UUID) -> SmartDeviceEntity | None: 
+    async def read(
+        self,
+        *,
+        id: UUID | None = None,
+        serial_number: str | None = None,
+        mac_address: str | None = None,
+        home_id: UUID | None = None,
+        name: str | None = None,
+        lock: Any,
+    ) -> SmartDeviceEntity | None:        
         ...
     
-    async def update(self, device: SmartDeviceEntity) -> None: 
+    async def update(self, dm: SmartDeviceEntity) -> None: 
         ...
     
-    async def delete(self, device_id: UUID) -> None: 
+    async def delete(self, id: UUID) -> None: 
         ...
 
 

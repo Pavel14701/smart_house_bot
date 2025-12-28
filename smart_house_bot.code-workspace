@@ -1,43 +1,26 @@
 {
   "folders": [
-	{
-			"path": "."
-	},
+    { 
+      "path": ".",
+    },
     {
       "path": "stt",
-      "settings": {
-        "python.defaultInterpreterPath": "C:\\Users\\Pashtet\\Desktop\\projects\\smart_house_bot\\stt\\.venv\\Scripts\\python.exe"
-      }
     },
     {
       "path": "nlu",
-      "settings": {
-        "python.defaultInterpreterPath": "C:\\Users\\Pashtet\\Desktop\\projects\\smart_house_bot\\nlu\\.venv\\Scripts\\python.exe"
-      }
     },
     {
       "path": "command",
-      "settings": {
-        "python.defaultInterpreterPath": "C:\\Users\\Pashtet\\Desktop\\projects\\smart_house_bot\\command\\.venv\\Scripts\\python.exe"
-      }
     },
     {
       "path": "bot",
-      "settings": {
-        "python.defaultInterpreterPath": "C:\\Users\\Pashtet\\Desktop\\projects\\smart_house_bot\\bot\\.venv\\Scripts\\python.exe"
-      }
     },
     {
       "path": "device_gateway",
-      "settings": {
-        "python.defaultInterpreterPath": "C:\\Users\\Pashtet\\Desktop\\projects\\smart_house_bot\\device_gateway\\.venv\\Scripts\\python.exe"
-      }
     },
     {
       "path": "webapp",
-      "settings": {
-        "python.defaultInterpreterPath": "C:\\Users\\Pashtet\\Desktop\\projects\\smart_house_bot\\webapp\\.venv\\Scripts\\python.exe"
-      }
     }
   ]
+  
 }
